@@ -65,7 +65,10 @@ public class MapGenerator : MonoBehaviour
             }
             noiseMap = elevationMap;
         }
-        mapRenderer.InitMap(elevationMap, moistureMap);
+
+        float[,] nearestMountainMap = NoiseHelper.NearestMountainMap(elevationMap);
+
+        mapRenderer.InitMap(elevationMap, moistureMap, nearestMountainMap);
         ShowMaximas();
         ShowMinimas();
     }

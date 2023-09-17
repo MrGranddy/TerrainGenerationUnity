@@ -39,6 +39,63 @@ public static class NoiseHelper
         return new Vector2(elevation, moisture);
     }
 
+    public static float[,] NearestMountainMap(float[,] elevationMap)
+    {
+        int width = elevationMap.GetLength(0);
+        int height = elevationMap.GetLength(1);
+        float[,] distanceMap = new float[width, height];
+
+        // Use a queue to hold the points and their distances
+        Queue<(int x, int y, float distance)> queue = new Queue<(int, int, float)>();
+
+        // Step 1: Enqueue all mountain points with a step count of 0
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (elevationMap[x, y] > 0.5f)
+                {
+                    queue.Enqueue((x, y, 0));
+                    distanceMap[x, y] = 0;
+                }
+                else
+                {
+                    distanceMap[x, y] = float.MaxValue;  // Initialize with a high value
+                }
+            }
+        }
+
+        // Step 3: Process the queue
+        while (queue.Count > 0)
+        {
+            var current = queue.Dequeue();
+
+            // Step 4: Check neighbors
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    if (dx == 0 && dy == 0) continue;  // Skip the center point
+
+                    int nx = current.x + dx;
+                    int ny = current.y + dy;
+
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height)  // Check boundaries
+                    {
+                        if (distanceMap[nx, ny] == float.MaxValue)  // If the point hasn't been visited
+                        {
+                            float newDistance = current.distance + 1;
+                            distanceMap[nx, ny] = newDistance;
+                            queue.Enqueue((nx, ny, newDistance));
+                        }
+                    }
+                }
+            }
+        }
+
+        return distanceMap;
+    }
+
     public static float RangeMap(
         float inputValue,
         float inMin,

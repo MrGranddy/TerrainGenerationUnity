@@ -2,29 +2,16 @@ using UnityEngine;
 
 public class BasicCameraControls : MonoBehaviour
 {
-    public float moveSpeed = 5.0f;
-    public float zoomSpeed = 5.0f;
-    public float rotateSpeed = 5.0f;
-
+    public float moveSpeed = 120.0f;
+    public float zoomSpeed = 75.0f;
+    public float rotateSpeed = 10.0f;
 
     public bool usePerspectiveZoom = true; // Set this to false if you're using an orthographic camera
 
-    private float rotationY = 0f;  // To keep track of vertical rotation
+    private float rotationY = 0f; // To keep track of vertical rotation
 
     void Update()
     {
-        // Removed mouse rotation and added Q and E keys for rotation.
-        float rotateHorizontal = 0;
-        if (Input.GetKey(KeyCode.Q))
-        {
-            rotateHorizontal -= rotateSpeed * Time.deltaTime;
-        }
-        if (Input.GetKey(KeyCode.E))
-        {
-            rotateHorizontal += rotateSpeed * Time.deltaTime;
-        }
-        transform.Rotate(0, rotateHorizontal, 0, Space.Self);
-
         // Basic movement using WASD keys relative to the camera's direction
         float moveForward = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
         float moveSide = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
@@ -64,12 +51,24 @@ public class BasicCameraControls : MonoBehaviour
             float mouseY = Input.GetAxis("Mouse Y") * rotateSpeed;
 
             rotationY -= mouseY;
-            rotationY = Mathf.Clamp(rotationY, -80, 80);  // Vertical angle range
+            rotationY = Mathf.Clamp(rotationY, -80, 80); // Vertical angle range
 
-            transform.localEulerAngles = new Vector3(rotationY, transform.localEulerAngles.y + mouseX, 0);
+            transform.localEulerAngles = new Vector3(
+                rotationY,
+                transform.localEulerAngles.y + mouseX,
+                transform.localEulerAngles.z
+            );
+        }
+
+        // Q and E for rotation around absolute Z axis
+        if (Input.GetKey(KeyCode.Q))
+        {
+            transform.Rotate(0, 10 * rotateSpeed * Time.deltaTime, 0);
+        }
+        else if (Input.GetKey(KeyCode.E))
+        {
+            transform.Rotate(0, -10 * rotateSpeed * Time.deltaTime, 0);
         }
 
     }
-
-
 }

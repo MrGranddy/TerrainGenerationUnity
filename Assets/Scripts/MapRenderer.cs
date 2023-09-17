@@ -33,7 +33,7 @@ public class MapRenderer : MonoBehaviour
         // Do something if needed
     }
 
-    public void InitMap(float[,] elevationMap, float[,] moistureMap)
+    public void InitMap(float[,] elevationMap, float[,] moistureMap, float[,] nearestMountainMap)
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
@@ -41,6 +41,16 @@ public class MapRenderer : MonoBehaviour
         vertices = new Vector3[width * height];
         triangles = new int[(width - 1) * (height - 1) * 6];
         colors = new Color[width * height];
+
+        // Determine the max distance in nearestMountainMap for normalization
+        float maxDistance = 0;
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                maxDistance = Mathf.Max(maxDistance, nearestMountainMap[i, j]);
+            }
+        }
 
         int tris = 0;
         int verts = 0;
@@ -52,46 +62,26 @@ public class MapRenderer : MonoBehaviour
                 vertices[verts] = new Vector3(x, elevationMap[x, y] * scale, y);
                 float elevation = elevationMap[x, y];
                 float moisture = moistureMap[x, y];
+                // Normalize the distance to a value between 0 and 1
+                float normalizedDistance = nearestMountainMap[x, y] / maxDistance;
 
-                if (elevation > 0.6f)
+                if (normalizedDistance < 0.33f)
                 {
-                    if (moisture < 0.2f)
-                        colors[verts] = tundraColor; // Tundra
-                    else
-                        colors[verts] = snowColor; // Snow
+                    colors[verts] = Color.Lerp(grassColor, dryGrassColor, normalizedDistance / 0.33f);
                 }
-                else if (elevation > 0.55f)
+                else if (normalizedDistance < 0.66f)
                 {
-                    colors[verts] = hillColor; // Hills
+                    colors[verts] = Color.Lerp(dryGrassColor, dustColor, (normalizedDistance - 0.33f) / 0.33f);
                 }
-                else if (elevation > 0.45f)
-                {
-                    if (moisture < 0.3f)
-                        colors[verts] = dryGrassColor; // Dry grass
-                    else
-                        colors[verts] = grassColor; // Grass
-                }
-                else if (elevation > 0.3f)
-                {
-                    if (moisture < 0.5f)
-                        colors[verts] = dustColor; // Dust (Desert)
-                    else
-                        colors[verts] = grassColor; // Low-lying Grass
-                }
-                // else if (elevation > 0.2f)
-                // {
-                //     colors[verts] = sandColor; // Sand (Beach)
-
-                // }
-
                 else
                 {
-                    if (moisture > 0.7f)
-                        colors[verts] = deepWaterColor; // Deep Water
-                    else
-                        colors[verts] = waterColor; // Shallow Water
+                    colors[verts] = Color.Lerp(dustColor, dustColor, (normalizedDistance - 0.66f) / 0.34f);
                 }
 
+                if (elevation > 0.5f)
+                {
+                    colors[verts] = snowColor;
+                }
                 verts++;
 
                 if (x < (width - 1) && y < (height - 1))
