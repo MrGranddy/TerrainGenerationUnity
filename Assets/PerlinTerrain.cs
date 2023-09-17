@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using UnityEngine.UI;
+using System.Threading;
 
 
 public class PerlinTerrain : MonoBehaviour
@@ -21,16 +22,20 @@ public class PerlinTerrain : MonoBehaviour
     Color brown = new Color(0.647f, 0.165f, 0.165f);
 
 
+   
     // Start is called before the first frame update
     void Start()
     {
-
+        GenerateTerrain();
+        //Thread.Sleep(5000);
+        //GenerateRivers();
     }
 
     // Update is called once per frame
     void Update()
     {
-        GenerateTerrain();
+      
+
     }
 
     public float[,] GenerateIslandGradientMap(int mapWidth, int mapHeight)
@@ -117,7 +122,7 @@ public class PerlinTerrain : MonoBehaviour
             {
                 // Use Perlin noise to set the height of the terrain
                 float heightValue = (noise[x, y] - gradient[x, y] * 0) * scale;
-
+                Debug.Log($"{heightValue/scale}");
                 vertices[verts] = new Vector3(x, heightValue, y);
 
                 // Color based on height
@@ -157,8 +162,61 @@ public class PerlinTerrain : MonoBehaviour
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
+
+        MarkLocalMinimaAndMaxima(vertices, colors,gradient,noise);
         mesh.colors = colors;  // Assign the color array to the mesh
         mesh.RecalculateNormals();
+    }
+
+
+    // A function to mark the local minima and maxima on the terrain
+    void MarkLocalMinimaAndMaxima(Vector3[] vertices, Color[] colors, float[,] gradient, float[,] noise)
+    {
+        for (int x = 1; x < width - 1; x++)
+        {
+            for (int y = 1; y < height - 1; y++)
+            {
+                int currentIndex = x * height + y;
+                float currentValue = vertices[currentIndex].y;
+
+                bool isLocalMinima = true;
+                bool isLocalMaxima = true;
+
+                // Loop through the neighbors to check for local minima or maxima
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        if (dx == 0 && dy == 0) continue;
+
+                        int neighborIndex = (x + dx) * height + (y + dy);
+                        float neighborValue = vertices[neighborIndex].y;
+
+                        if (currentValue >= neighborValue)
+                        {
+                            isLocalMinima = false;
+                        }
+
+                        if (currentValue <= neighborValue)
+                        {
+                            isLocalMaxima = false;
+                        }
+                    }
+                }
+            float heightValue = (noise[x, y] - gradient[x, y] * 0) * scale;
+
+                 // Store the coordinates of local minima and maxima
+            if (isLocalMinima && heightValue < 0)  // Check if it's water tile
+            {
+                colors[currentIndex] = Color.white;  // Mark local minima with black color
+            }
+
+            if (isLocalMaxima && heightValue >= scale * 0.7f)  // Check if it's mountain tile
+            {
+                colors[currentIndex] = Color.black;  // Mark local maxima with red color
+            }
+            }
+        }
     }
 
 }
