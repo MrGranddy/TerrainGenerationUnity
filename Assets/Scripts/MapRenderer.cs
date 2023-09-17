@@ -4,8 +4,8 @@ using System.Collections.Generic;
 public class MapRenderer : MonoBehaviour
 {
     // Vertex count along x and y
-    public int width;
-    public int height;
+    private int width;
+    private int height;
 
     private int scale = 30;
 
@@ -28,12 +28,18 @@ public class MapRenderer : MonoBehaviour
     private Color deepWaterColor = new Color(0.0f, 0.0f, 0.5f);
     private Color dustColor = new Color(0.9f, 0.8f, 0.7f);
 
+    public void SetMapSize(int setWidth, int setHeight)
+    {
+        width = setWidth;
+        height = setHeight;
+    }
+
     public void ClearMap()
     {
         // Do something if needed
     }
 
-    public void InitMap(float[,] elevationMap, float[,] moistureMap, float[,] nearestMountainMap)
+    public void InitMap(float[,] elevationMap, float[,] decreaseMap, float[,] nearestMountainMap, NoiseSettings mapSettings)
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
@@ -41,6 +47,10 @@ public class MapRenderer : MonoBehaviour
         vertices = new Vector3[width * height];
         triangles = new int[(width - 1) * (height - 1) * 6];
         colors = new Color[width * height];
+
+        float decreaseScale = mapSettings.decreaseScale;
+        float mountainThreshold = mapSettings.mountainThreshold;
+        float seaThreshold = mapSettings.seaThreshold;
 
         // Determine the max distance in nearestMountainMap for normalization
         float maxDistance = 0;
@@ -59,9 +69,14 @@ public class MapRenderer : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                vertices[verts] = new Vector3(x, elevationMap[x, y] * scale, y);
+
                 float elevation = elevationMap[x, y];
-                float moisture = moistureMap[x, y];
+                float decrease = decreaseMap[x, y];
+
+                elevation = elevation - decrease * decreaseScale;
+
+                vertices[verts] = new Vector3(x, elevation * scale, y);
+
                 // Normalize the distance to a value between 0 and 1
                 float normalizedDistance = nearestMountainMap[x, y] / maxDistance;
 
@@ -78,10 +93,16 @@ public class MapRenderer : MonoBehaviour
                     colors[verts] = Color.Lerp(dustColor, dustColor, (normalizedDistance - 0.66f) / 0.34f);
                 }
 
-                if (elevation > 0.5f)
+                if (elevation > mountainThreshold)
                 {
                     colors[verts] = snowColor;
                 }
+                if (elevation < seaThreshold)
+                {
+                    colors[verts] = waterColor;
+                }
+
+
                 verts++;
 
                 if (x < (width - 1) && y < (height - 1))

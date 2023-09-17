@@ -5,38 +5,23 @@ using UnityEngine;
 
 public static class NoiseHelper
 {
-    public static Vector2 SumNoise(float x, float y, NoiseSettings noiseSettings)
+    public static float PerlinMap(float x, float y, int octaves, float startFrequency, float persistance, float offset)
     {
         float amplitude = 1;
-        float frequency = noiseSettings.startFrequency;
-        float elevation = 0;
-        float moisture = 0;
+        float frequency = startFrequency;
+        float value = 0;
         float amplitudeSum = 0;
 
-        // Generate elevation noise
-        for (int i = 0; i < noiseSettings.octaves; i++)
+        for (int i = 0; i < octaves; i++)
         {
-            elevation += amplitude * Mathf.PerlinNoise(x * frequency, y * frequency);
+            value += amplitude * Mathf.PerlinNoise(x * frequency + offset, y * frequency + offset);
             amplitudeSum += amplitude;
-            amplitude *= noiseSettings.persistance;
+            amplitude *= persistance;
             frequency *= 2;
         }
-        elevation /= amplitudeSum; // set range back to 0-1
+        value /= amplitudeSum; // set range back to 0-1
 
-        // Generate moisture noise
-        amplitude = 1;
-        frequency = noiseSettings.biomeStartFrequency;
-        amplitudeSum = 0;
-        for (int i = 0; i < noiseSettings.biomeOctaves; i++)
-        {
-            moisture += amplitude * Mathf.PerlinNoise(1000 + x * frequency, 1000 + y * frequency); // Offsetting to not overlap with elevation noise
-            amplitudeSum += amplitude;
-            amplitude *= noiseSettings.biomePersistance;
-            frequency *= 2;
-        }
-        moisture /= amplitudeSum; // set range back to 0-1
-
-        return new Vector2(elevation, moisture);
+        return value;
     }
 
     public static float[,] NearestMountainMap(float[,] elevationMap)

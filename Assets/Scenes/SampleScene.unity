@@ -327,7 +327,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1790514549}
-  - component: {fileID: 1790514548}
   - component: {fileID: 1790514547}
   - component: {fileID: 1790514546}
   - component: {fileID: 1790514551}
@@ -390,26 +389,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1790514545}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1790514548
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1790514545}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f9d2a916713fbd4897afb5bc35c5211, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  width: 256
-  height: 256
-  scale: 20
-  octaves: 6
-  persistence: 0
-  initialFrequency: 0.06
-  lacunarity: 2
-  heightOffset: 0.2
 --- !u!4 &1790514549
 Transform:
   m_ObjectHideFlags: 0
@@ -437,8 +416,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3007817aa5ef6ae4c894c45462dd3e5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 300
-  height: 300
 --- !u!114 &1790514551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -451,16 +428,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7525c1ae4e7308a478dc584627ec8430, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  width: 300
+  height: 300
   mapRenderer: {fileID: 1790514550}
   riverGenerator: {fileID: 1790514552}
-  mapSize: 300
   mapSettings:
-    octaves: 6
-    logStartFrequency: -2
-    persistance: 0.6
-    biomeOctaves: 1
-    biomePersistance: 1
-    biomeStartFrequency: 0.01
+    elevationOctaves: 6
+    elevationLogStartFrequency: -2
+    elevationPersistance: 0.6
+    elevationOffset: 0
+    decreaseOctaves: 6
+    decreaseLogStartFrequency: -2
+    decreasePersistance: 0.6
+    decreaseOffset: 0
+    decreaseScale: 0.4
+    mountainThreshold: 0.34
+    seaThreshold: 0.27
   hillHeight: 0.5
   snowHeight: 0.6
   waterHeight: 0.4
@@ -478,12 +461,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapGenerator: {fileID: 1790514551}
   riverSettings:
-    octaves: 6
-    logStartFrequency: 2
-    persistance: 0.6
-    biomeOctaves: 1
-    biomePersistance: 1
-    biomeStartFrequency: 0.01
+    elevationOctaves: 6
+    elevationLogStartFrequency: -2
+    elevationPersistance: 0.6
+    elevationOffset: 0
+    decreaseOctaves: 6
+    decreaseLogStartFrequency: -2
+    decreasePersistance: 0.6
+    decreaseOffset: 0
+    decreaseScale: 0.4
+    mountainThreshold: 0.7
+    seaThreshold: 0.2
   riverStartPosition: {x: 0, y: 0}
   riverLength: 50
   bold: 1

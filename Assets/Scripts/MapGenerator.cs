@@ -7,22 +7,21 @@ using UnityEngine.Tilemaps;
 
 public class MapGenerator : MonoBehaviour
 {
-    public MapRenderer mapRenderer;
+    public int width = 500;
+    public int height = 500;
 
+    public MapRenderer mapRenderer;
     public RiverGenerator riverGenerator;
-    // public TileBase grassTile, waterTile, hillTile, snowTile, maxPosTile;
-    public int mapSize;
     public NoiseSettings mapSettings;
-    public float hillHeight = 0.5f,
-        snowHeight = 0.6f,
-        waterHeight = 0.4f;
+
+    public float hillHeight = 0.5f, snowHeight = 0.6f, waterHeight = 0.4f;
     //public GameObject townPrefab; // Attach your prefab here through Unity Editor
 
     public float[,] noiseMap;
 
     private void Start()
     {
-        noiseMap = new float[mapSize, mapSize];
+        noiseMap = new float[width, height];
         // PrepareMap();
         // ShowMinimas();
         // ShowMaximas();
@@ -40,6 +39,7 @@ public class MapGenerator : MonoBehaviour
     {
         if (Application.isPlaying)
         {
+            mapRenderer.SetMapSize(width, height);
             PrepareMap();
         }
     }
@@ -50,25 +50,24 @@ public class MapGenerator : MonoBehaviour
 
         mapRenderer.ClearMap();
 
-        float[,] elevationMap = new float[mapSize, mapSize];
-        float[,] moistureMap = new float[mapSize, mapSize];
+        float[,] elevationMap = new float[width, height];
+        float[,] decreaseMap = new float[width, height];
 
-        for (int x = 0; x < mapSize; x++)
+        for (int x = 0; x < width; x++)
         {
-            for (int y = 0; y < mapSize; y++)
+            for (int y = 0; y < height; y++)
             {
-                Vector2 noise = NoiseHelper.SumNoise(x, y, mapSettings);
-
-                elevationMap[x, y] = noise.x;
-                // elevationMap[x, y] -= islandGradient[x,y];
-                moistureMap[x, y] = noise.y;
+                elevationMap[x, y] = NoiseHelper.PerlinMap(x, y, mapSettings.elevationOctaves, mapSettings.elevationStartFrequency, mapSettings.elevationPersistance, mapSettings.elevationOffset);
+                decreaseMap[x, y] = NoiseHelper.PerlinMap(x, y, mapSettings.decreaseOctaves, mapSettings.decreaseStartFrequency, mapSettings.decreasePersistance, mapSettings.decreaseOffset);
             }
-            noiseMap = elevationMap;
         }
 
         float[,] nearestMountainMap = NoiseHelper.NearestMountainMap(elevationMap);
 
-        mapRenderer.InitMap(elevationMap, moistureMap, nearestMountainMap);
+        mapRenderer.InitMap(elevationMap, decreaseMap, nearestMountainMap, mapSettings);
+
+        noiseMap = elevationMap;
+
         ShowMaximas();
         ShowMinimas();
     }

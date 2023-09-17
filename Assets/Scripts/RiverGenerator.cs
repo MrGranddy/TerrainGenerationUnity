@@ -61,7 +61,7 @@ public class RiverGenerator : MonoBehaviour
         var tilePos = mapGenerator.mapRenderer.GetCellPosition(scaledPos);
 
         if (true){
-        if (tilePos.x < 0 || tilePos.x >= mapGenerator.mapSize || tilePos.y < 0 || tilePos.y >= mapGenerator.mapSize)
+        if (tilePos.x < 0 || tilePos.x >= mapGenerator.width || tilePos.y < 0 || tilePos.y >= mapGenerator.height)
             break;
         if (true){
 
