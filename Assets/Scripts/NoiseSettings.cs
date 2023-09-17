@@ -17,6 +17,4 @@ public class NoiseSettings
 
     public float biomePersistance = 1.0f;
     public float biomeStartFrequency = 0.01f;
-
-
 }
